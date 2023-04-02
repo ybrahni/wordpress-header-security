@@ -41,6 +41,12 @@ This plugin has been tested and verified to work on WordPress versions 5.8, 5.9,
 
 Contributions are welcome! Please feel free to open a pull request or submit an issue.
 
+## TODO
+- [ ] Add comments to the code to improve readability and maintainability.
+- [ ] Add internationalization support.
+- [ ] Add screenshots to the README file to better explain the plugin's functionality and show the results
+
+
 ## License
 
 The WP Header Security plugin is licensed under the MIT License.

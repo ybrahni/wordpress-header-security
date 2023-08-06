@@ -33,12 +33,20 @@ function wp_header_security_settings_page() {
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
         <p style=" font-size: 20px; font-weight: bold; text-align: center; "><?php _e( 'Configure the security headers for your website below:', 'WPHeaderSecurity' ); ?></p>
+        <button id="checkSecurityHeadersButton" style="cursor: pointer; padding: 10px 20px; background: black; color: #fff; font-size: 18px; border-radius: 20px; margin: auto; display: block;">Check Website Security Headers</button>
         <form method="post" action="options.php">
             <?php settings_fields('wp_header_security'); ?>
             <?php do_settings_sections('wp_header_security'); ?>
             <?php submit_button(); ?>
         </form>
     </div>
+    <script type="text/javascript">
+        document.getElementById("checkSecurityHeadersButton").addEventListener("click", function() {
+            let domain = window.location.hostname;
+            let securityHeadersURL = `https://securityheaders.com/?q=https://${domain}&followRedirects=on`;
+            window.open(securityHeadersURL, "_blank");
+        });
+    </script>
     <?php
 }
 function wp_header_security_settings_init() {
@@ -48,7 +56,6 @@ function wp_header_security_settings_init() {
     register_setting('wp_header_security', 'wp_header_security_X-Content-Type-Options');
     register_setting('wp_header_security', 'wp_header_security_Referrer-Policy');
     register_setting('wp_header_security', 'wp_header_security_Permissions-Policy');
-
     add_settings_section('wp_header_security_section', 'Security Headers', function() {}, 'wp_header_security');
 
 
@@ -62,7 +69,7 @@ function wp_header_security_settings_init() {
         echo '<select name="wp_header_security_X-Frame-Options">';
         foreach ($choices as $key => $label) {
             $selected = ($value == $key) ? 'selected' : '';
-            echo '<option value="' . $key . '" ' . $selected . '>' . $label . '</option>';
+            echo '<option value="' . esc_attr( $key ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $label ) . '</option>';
         }
         echo '</select>';
         echo '<p class="description">The X-Frame-Options header restricts which websites can embed your site\'s content in an iframe. 
@@ -86,23 +93,6 @@ function wp_header_security_settings_init() {
         }
         echo '</select>';
         echo '<p class="description"> Strict-Transport-Security is an HTTP response header that instructs the browser to only use HTTPS to access the website. This can help protect your website from certain types of attacks, such as man-in-the-middle attacks. The value of this header should include the maximum age, in seconds, that the browser should remember to only use HTTPS.</p>';
-    }, 'wp_header_security', 'wp_header_security_section');
-
-    add_settings_field('wp_header_security_Content-Security-Policy', 'Content-Security-Policy', function() {
-        $value = get_option('wp_header_security_Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;");
-        $choices = array(
-            "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" => "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;",
-            "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';" => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';",
-            "default-src 'self'; font-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" => "default-src 'self'; font-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
-        );
-        echo '<select name="wp_header_security_Content-Security-Policy">';
-        foreach ($choices as $key => $label) {
-            $selected = ($value == $key) ? 'selected' : '';
-            echo '<option value="' . $key . '" ' . $selected . '>' . $label. '</option>';
-        }
-        echo '</select>';
-        echo '<p class="description">The Content-Security-Policy (CSP) header allows you to restrict the sources from which certain types of resources can be loaded on your website. This can help protect against attacks such as cross-site scripting (XSS) and data injection. The CSP policy is a list of directives that specify the allowed sources for different types of resources, such as scripts, stylesheets, images, and fonts. By default, the policy is set to allow resources to be loaded only from the same origin as the website, but you can customize the policy to fit your needs. The policy can be a complex string with multiple directives and values, so it\'s important to understand the syntax and options available when configuring your CSP policy.</p>';
-        echo '<p class="description">The Content-Security-Policy should be tailored to the specific needs of your website or web application, and thoroughly tested to ensure that it does not block any necessary resources.</p>';
     }, 'wp_header_security', 'wp_header_security_section');
 
     add_settings_field('wp_header_security_X-Content-Type-Options', 'X-Content-Type-Options', function() {
@@ -141,22 +131,43 @@ function wp_header_security_settings_init() {
         echo '<p class="description">It\'s recommended to use \'strict-origin-when-cross-origin\' or \'same-origin\' for most websites, but the best choice depends on the specific security requirements and functionality of the website.</p>';
     }, 'wp_header_security', 'wp_header_security_section');
 
+    add_settings_field('wp_header_security_Content-Security-Policy', 'Content-Security-Policy', function() {
+        $value = get_option('wp_header_security_Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+
+        // Dropdown selection
+        $choices = array(
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" => "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;",
+            "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';" => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';",
+            "default-src 'self'; font-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" => "default-src 'self'; font-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+        );
+        echo '<select name="wp_header_security_Content-Security-Policy_Select">';
+        foreach ($choices as $key => $label) {
+            $selected = ($value == $key) ? 'selected' : '';
+            echo '<option value="' . $key . '" ' . $selected . '>' . $label. '</option>';
+        }
+        echo '</select>';
+    }, 'wp_header_security', 'wp_header_security_section');
+
+
     add_settings_field('wp_header_security_Permissions-Policy', 'Permissions-Policy', function() {
         $value = get_option('wp_header_security_Permissions-Policy', "geolocation 'none'; camera 'none'; microphone 'none';");
+
+        // Dropdown selection
         $choices = array(
             "geolocation 'none'; camera 'none'; microphone 'none';" => "geolocation 'none'; camera 'none'; microphone 'none'; (recommended)",
             "geolocation 'self'; camera 'self'; microphone 'self';" => "geolocation 'self'; camera 'self'; microphone 'self';",
             "geolocation 'none'; camera 'self'; microphone 'self';" => "geolocation 'none'; camera 'self'; microphone 'self';",
             "geolocation 'self'; camera 'none'; microphone 'none';" => "geolocation 'self'; camera 'none'; microphone 'none';"
         );
-        echo '<select name="wp_header_security_Permissions-Policy">';
+        echo '<select name="wp_header_security_Permissions-Policy_Select">';
         foreach ($choices as $key => $label) {
             $selected = ($value == $key) ? 'selected' : '';
             echo '<option value="' . $key . '" ' . $selected . '>' . $label . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">The recommended option for Permissions-Policy depends on the specific needs of your website and the features it uses. However, it is generally recommended to use the most restrictive policy that still allows your website to function properly</p>';
     }, 'wp_header_security', 'wp_header_security_section');
+
+
 }
 
 add_action('admin_init', 'wp_header_security_settings_init');

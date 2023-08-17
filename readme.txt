@@ -2,7 +2,7 @@
 Contributors: Yassine Brahni
 Tags: security, headers, http headers, x-frame-options, content-security-policy, strict-transport-security, x-content-type-options, referrer-policy, permissions-policy
 Requires at least: 5.8
-Tested up to: 6.2
+Tested up to: 6.3
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

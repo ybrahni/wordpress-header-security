@@ -33,6 +33,20 @@ Here are the recommended options for each security header:
 - Referrer-Policy: `strict-origin-when-cross-origin`
 - Permissions-Policy: `geolocation 'none'; camera 'none'; microphone 'none';`
 
+### Changes and Enhancements
+
+- Restructured plugin to streamline header management
+- Added default header values for `X-Frame-Options`, `Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`
+- Implemented dynamic header retrieval from WordPress options with fallbacks to default values
+- Introduced custom and selectable `Content-Security-Policy` options in settings
+- Added a settings page in the admin panel for configuring security headers
+- Created dropdowns for selecting predefined values for `X-Frame-Options`, `Strict-Transport-Security`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`
+- Included JavaScript for checking website security headers via securityheaders.com
+- Added sanitization functions for custom input values
+- Set default options on plugin activation
+- Cleaned up options on plugin deactivation
+- Ensured proper function availability checks and direct access prevention
+
 ## Compatibility
 
 This plugin has been tested and verified to work on WordPress versions 5.8, 5.9, 6.0, 6.1, and 6.2.
@@ -44,8 +58,7 @@ Contributions are welcome! Please feel free to open a pull request or submit an 
 ## TODO
 - [ ] Add comments to the code to improve readability and maintainability.
 - [ ] Add internationalization support.
-- [ ] Add screenshots to the README file to better explain the plugin's functionality and show the results
-
+- [ ] Add screenshots to to better explain the plugin's functionality and show the results.
 
 ## License
 
